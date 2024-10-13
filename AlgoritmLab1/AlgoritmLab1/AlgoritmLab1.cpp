@@ -33,29 +33,6 @@ void Swap(int* first, int* second)
     *second = ptr;
 }
 
-void ShiftLeft(int* mas, int m, int pos)
-{
-    for (int i = pos; i < m - 1; i++)
-        mas[i] = mas[i + 1];
-}
-
-int DelCol(int** matr, int m, int k)
-{
-    int i;
-    for (i = 0; i < m; i++)
-        ShiftLeft(matr[i], m, k);
-    return --m;
-}
-
-int DelStr(int** matr, int m, int k)
-{
-    int i;
-    delete[] matr[k];
-    for (i = k; i < m - 1; i++)
-        matr[i] = matr[i + 1];
-    return --m;
-}
-
 int RouteCost(int route[], int n, int** matr)
 {
     int cost = 0;
@@ -63,7 +40,7 @@ int RouteCost(int route[], int n, int** matr)
     {
         cost += matr[route[i]][route[i + 1]];
     }
-    cost += matr[route[n - 1]][route[0]]; // возвращение в начальный город
+    cost += matr[route[n - 1]][route[0]];
     return cost;
 }
 
@@ -93,10 +70,15 @@ void permute(int* arr, int start, int end, int** matr, int& min_сost, int *best
     }
 }
 
-void ColZero(int** matr, int m, int index)
+void StrZero(int** matr, int m, int index)
 {
     for (int i = 0; i < m; i++)
         matr[i][index] = 0;
+}
+
+void ColZero(int** matr, int m, int index)
+{
+    for (int j = 0; j < m; j++) matr[index][j] = 0;
 }
 
 int MaxSumStr(int** matr, int m)
@@ -113,8 +95,8 @@ int MaxSumStr(int** matr, int m)
         {
             max_sum = sum;
             index = i;
-            sum = 0;
         }
+        sum = 0;
     }
     cout << "Макс сумма: " << max_sum << endl;
     return index;
@@ -131,10 +113,11 @@ int MinDuga(int** matr, int m)
         {
             min_st = matr[index][j];
             index_j = j;
-            ColZero(matr, m, j);
         }
-        matr[index][j] = 0;
     }
+    //cout << index + 1 << "->";
+    ColZero(matr, m, index);
+    StrZero(matr, m, index_j);
     return min_st;
 }
 
@@ -158,14 +141,13 @@ int main()
 
     // Инициализация массива городов
     int *cities = new int[cnt_city];
-    int* best_route = new int[cnt_city];
+    int *best_route = new int[cnt_city];
     for (int i = 0; i < cnt_city; ++i)
     {
         cities[i] = i;
     }
 
     // Решение задачи коммивояжёра
-
     Swap(&cities[0], &cities[startCity]);
     int min_сost = 1000;
     permute(cities, 1, cnt_city - 1, matr, min_сost,best_route);
@@ -174,22 +156,22 @@ int main()
     cout <<best_route[0]+1<< "->";
     for (int i=1;i<cnt_city;++i)
         cout<<best_route[i]+1<<"->";
-    cout << best_route[0]+1;
-    //эвристика
-    // 
-    //int LenPuti = 0, sum = 0, cnt = 1;
-    //while (cnt != cnt_city)
-    //{
-    //    puts("\nСумма дуг:");
-    //    int min_st_puti = MinDuga(matr, cnt_city);
-    //    LenPuti += min_st_puti;
-    //    cout << "Макс сумма: " << min_st_puti << endl;
-    //    //cnt_city = DelCol(matr, cnt_city, indj);
-    //    OutputMatr(matr, cnt_city);
-    //    cout << endl;
-    //    cnt++;
-    //}
-    //cout << "Длина пути эвристикой: " << LenPuti;
+    cout << best_route[0]+1<<endl;
+
+    //эвристика 
+    int LenPuti = 0, sum = 0, cnt = 0;
+    while (cnt != cnt_city)
+    {
+        puts("\nСумма дуг:");
+        int min_st_puti = MinDuga(matr, cnt_city);
+        LenPuti += min_st_puti;
+        cout << "Минимальная дуга: " << min_st_puti << endl;
+        cout << endl;
+        OutputMatr(matr, cnt_city);
+        cnt++;
+    }
+    cout << "Длина пути эвристикой: " << LenPuti;
+
     for (int i = 0; i < cnt_city; i++) delete[]matr[i];
     delete[] matr;
     delete[] cities;
