@@ -4,241 +4,243 @@
 #include <time.h>
 #include <iostream>
 
-void randMatrD(int** matr, int m, int lf, int rt)
+using namespace std;
+
+void RandMatr(int** matr, int m)
 {
 	srand(time(0));
 	for (int i = 0; i < m; i++)
 		for (int j = 0; j < m; j++)
 		{
-			if (i == j)
-				matr[i][j] = 0;
+			if (i == j) matr[i][j] = 0;
 			else
-				matr[i][j] = rand() % (rt - lf + 1) + lf;
+				matr[i][j] = rand() %50 + 1;
 		}
 }
-void outputMatrD(int** matr, int m)
+
+void OutputMatr(int** matr, int m)
 {
 	for (int i = 0; i < m; i++)
 	{
-		for (int j = 0; j < m; j++) printf(" % 4d", matr[i][j]);
+		printf("\n");
+		for (int j = 0; j < m; j++) printf("%d ", matr[i][j]);
 		printf("\n");
 	}
 }
-void swap(int& a, int& b)
+
+void CopyMatr(int** matr, int** matrCopy, int m)
 {
-	int c;
-	c = a;
-	a = b;
-	b = c;
+	for (int i = 0; i < m; i++)
+		for (int j = 0; j < m; j++)
+			matrCopy[i][j] = matr[i][j];
 }
-int inverСheck(int* massiv, int n)
+
+void Swap(int* first, int* second) {
+	int ptr = *first;
+	*first = *second;
+	*second = ptr;
+}
+
+int CheckInvert(int* massiv, int n)
 {
 	for (int i = 1; i < n - 1; i++)
 		if (massiv[i] < massiv[i + 1])
 			return 0;
 	return 1;
 }
-void copyMatrix(int** matrix, int** matrixCopy, int n)
+
+
+void Sort(int* mas, int left, int right)
 {
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < n; j++)
-			matrixCopy[i][j] = matrix[i][j];
-}
-void sheiker(int* massiv, int L, int R)
-{
-	while (L <= R)
+	while (left <= right)
 	{
-		for (int i = L; i < R; i++)
-			if (massiv[i] > massiv[i + 1])
-				swap(massiv[i], massiv[i + 1]);
-		R--;
-		for (int i = R; i > L; i--)
-			if (massiv[i] < massiv[i - 1])
-				swap(massiv[i], massiv[i - 1]);
-		L++;
+		for (int i = left; i < right; i++)
+			if (mas[i] > mas[i + 1])
+				Swap(&mas[i], &mas[i + 1]);
+		right--;
+		for (int i = right; i > left; i--)
+			if (mas[i] < mas[i - 1])
+				Swap(&mas[i], &mas[i - 1]);
+		left++;
 	}
 }
-void createMassivWay(int n, int begin, int* massiv)
+void CityWay(int *mas,int m, int begin)
 {
-	int m = 1;
-	massiv[0] = begin;
-	massiv[n] = begin;
-	for (int i = 1; m <= n; m++)
+	int n = 1;
+	mas[0] = begin;
+	mas[m] = begin;
+	for (int i = 1; n <= m; n++)
 	{
-		if (begin != m)
+		if (begin != n)
 		{
-			massiv[i] = m;
+			mas[i] = n;
 			i++;
 		}
 	}
 }
-int priceWay(int** matr, int* massiv, int n)
+int RouteCost(int** matr, int* mas, int m)
 {
 	int sum = 0;
-	for (int i = 1; i < n + 1; i++)
+	for (int i = 1; i < m + 1; i++)
 	{
-		sum = sum + matr[massiv[i - 1] - 1][massiv[i] - 1];
+		sum = sum + matr[mas[i - 1] - 1][mas[i] - 1];
 	}
 	return sum;
 }
-bool dijkAlg(int** matr, int* massiv, int n)
+bool Permutation(int** matr, int* mas, int m)
 {
 	int i_max = 1, j_max = 1;
-	for (int i = 2; i < n - 1; i++)
-		if (massiv[i] > 0 && massiv[i] < massiv[i + 1])
+	for (int i = 2; i < m - 1; i++)
+		if (mas[i] > 0 && mas[i] < mas[i + 1])
 			i_max = i;
-	for (int j = i_max + 1; (j > i_max && j <= n - 1); j++)
+	for (int j = i_max + 1; (j > i_max && j <= m - 1); j++)
 	{
-		if (massiv[i_max] < massiv[j])
+		if (mas[i_max] < mas[j])
 			j_max = j;
 	}
-	swap(massiv[j_max], massiv[i_max]);
-	sheiker(massiv, i_max + 1, n - 1);
-	if (inverСheck(massiv, n) == 1)
+	Swap(&mas[j_max], &mas[i_max]);
+	Sort(mas, i_max + 1, m - 1);
+	if (CheckInvert(mas, m) == 1)
 		return false;
 	return true;
 }
-void delStrStl(int** matrix, int n, int line, int column)
+void Zero(int** matr, int m, int line, int column)
 {
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < m; i++)
 	{
-		matrix[line][i] = 0;
+		matr[line][i] = 0;
 	}
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < m; i++)
 	{
-		matrix[i][column] = 0;
+		matr[i][column] = 0;
 	}
 }
-void exactAlg(int** matrix, int sumCities, int* massiv, int* masMax, int* masMin, int& priceMin, int& priceMax)
+void Max_and_MinCost(int** matr, int sumCities, int* mas, int* masMax, int* masMin, int& priceMin, int& priceMax)
 {
-	priceMin = priceWay(matrix, massiv, sumCities);
-	priceMax = priceWay(matrix, massiv, sumCities);
+	priceMin = RouteCost(matr, mas, sumCities);
+	priceMax = RouteCost(matr, mas, sumCities);
 	for (int i = 0; i < sumCities + 1; i++)
-		masMax[i] = massiv[i];
+		masMax[i] = mas[i];
 	for (int i = 0; i < sumCities + 1; i++)
-		masMin[i] = massiv[i];
+		masMin[i] = mas[i];
 	do
 	{
 		int price;
-		price = priceWay(matrix, massiv, sumCities);
+		price = RouteCost(matr, mas, sumCities);
 		if (price > priceMax)
 		{
 			priceMax = price;
 			for (int i = 0; i < sumCities + 1; i++)
-				masMax[i] = massiv[i];
+				masMax[i] = mas[i];
 		}
 		if (price < priceMin)
 		{
 			priceMin = price;
 			for (int i = 0; i < sumCities + 1; i++)
-				masMin[i] = massiv[i];
+				masMin[i] = mas[i];
 		}
-	} while (dijkAlg(matrix, massiv, sumCities));
+	} while (Permutation(matr, mas, sumCities));
 }
-void heuristic(int** matrix, int sumCities, int Begin, int* masHeuristic, int& sumHeuristic)
+void Heuristic(int** matr, int sumCities, int StartCity, int* masHeuristic, int& sumHeuristic)
 {
-	int sumWayHeuristic = 1;
-	int** matrixCopy;
-	masHeuristic[0] = Begin;
-	masHeuristic[sumCities] = Begin;
-	matrixCopy = new int* [sumCities];
+	int sumRouteHeuristic = 1;
+	int** matrCopy;
+	masHeuristic[0] = StartCity;
+	masHeuristic[sumCities] = StartCity;
+	matrCopy = new int* [sumCities];
 	for (int i = 0; i < sumCities; i++)
-		matrixCopy[i] = new int[sumCities];
-	copyMatrix(matrix, matrixCopy, sumCities);
-	while (sumWayHeuristic < sumCities)
+		matrCopy[i] = new int[sumCities];
+	CopyMatr(matr, matrCopy, sumCities);
+	while (sumRouteHeuristic < sumCities)
 	{
 		int minCol = 0;
 		for (int j = 1; j <= sumCities; j++)
 		{
-			if (matrix[Begin - 1][minCol] == 0)
+			if (matr[StartCity - 1][minCol] == 0)
 				minCol++;
-			if (matrix[Begin - 1][j] < matrix[Begin - 1][minCol] && matrix[Begin - 1][j] > 0)
+			if (matr[StartCity - 1][j] < matr[StartCity - 1][minCol] && matr[StartCity - 1][j] > 0)
 				minCol = j;
 		}
-		masHeuristic[sumWayHeuristic] = minCol + 1;
-		for (int test = 0; test < sumWayHeuristic; test++)
+		masHeuristic[sumRouteHeuristic] = minCol + 1;
+		for (int test = 0; test < sumRouteHeuristic; test++)
 			if (masHeuristic[test] == minCol + 1)
 			{
-				matrix[Begin - 1][minCol] = 0;
-				minCol = Begin - 1;
-				sumWayHeuristic--;
+				matr[StartCity - 1][minCol] = 0;
+				minCol = StartCity - 1;
+				sumRouteHeuristic--;
 			}
-		if (minCol + 1 != Begin)
-			delStrStl(matrix, sumCities, Begin - 1, minCol);
-		matrix[minCol][Begin - 1] = 0;
-		Begin = minCol + 1;
-		sumWayHeuristic++;
+		if (minCol + 1 != StartCity)
+			Zero(matr, sumCities, StartCity - 1, minCol);
+		matr[minCol][StartCity - 1] = 0;
+		StartCity = minCol + 1;
+		sumRouteHeuristic++;
 	}
-	sumHeuristic = priceWay(matrixCopy, masHeuristic, sumCities);
+	sumHeuristic = RouteCost(matrCopy, masHeuristic, sumCities);
 }
-void percent(int priceMin, int priceMax, int price)
+void Percent(int priceMin, int priceMax, int price)
 {
 	double percent;
 	if (priceMax == priceMin)
-		std::cout << "\n" << "accuracy of execution = 100%";
+		cout <<endl << "Процент выполнения = 100%";
 	else
 	{
 		percent = (1. - (1.0 * (price - priceMin) / (priceMax - priceMin))) * 100;
-		std::cout << "\n" << "\n" << "accuracy of execution = " << percent << "%";
+		cout << endl << "Процент выполнения = " << percent << "%";
 	}
 }
 int main()
 {
 	setlocale(LC_ALL, "Russian");
-	//for (int j = 0; j < 1; j++)
-	//{
-		int Begin, sumCities;
-		std::cout << "Enter the number of cities - ";
-		std::cin >> sumCities;
-		puts("");
-		std::cout << "Enter your starting city ";
-		std::cin >> Begin;
-		puts("");
-		int** matrix; int** matrixCopy;
-		int* massiv; int* masHeuristic; int* masMax; int* masMin;
-		int price = 0, priceMax = 0, sumHeuristic = 0, priceMin = 0;
-		clock_t start, stop; double time1, time2;
-		matrix = new int* [sumCities];
-		for (int i = 0; i < sumCities; i++)
-			matrix[i] = new int[sumCities];
-		massiv = new int[sumCities + 1];
-		masMax = new int[sumCities + 1];
-		masMin = new int[sumCities + 1];
-		randMatrD(matrix, sumCities, 1, 100);
-		outputMatrD(matrix, sumCities);
-		createMassivWay(sumCities, Begin, massiv);
-		start = clock();
-		exactAlg(matrix, sumCities, massiv, masMax, masMin, priceMin, priceMax);
-		std::cout << "\n" << "The min Way = " << priceMin << "\n" << "Minimum way: ";
-		for (int i = 0; i <= sumCities; i++)
-			std::cout << masMin[i] << " ";
-		std::cout << "\n" << "The max Way = " << priceMax << "\n" << "Maximum way: ";
-		for (int i = 0; i <= sumCities; i++)
-			std::cout << masMax[i] << " ";
-		puts("");
-		delete[] massiv;
-		delete[] masMax;
-		delete[] masMin;
-		masHeuristic = new int[sumCities + 1];
-		stop = clock();
-		time1 = (double)(stop - start) / CLOCKS_PER_SEC;
-		std::cout << "the running time of the exact algorithm = " << time1;
-		puts("");
-		start = clock();
-		heuristic(matrix, sumCities, Begin, masHeuristic, sumHeuristic);
-		std::cout << "\n" << "Heuristic way massiv: ";
-		for (int i = 0; i <= sumCities; i++)
-			std::cout << masHeuristic[i] << " ";
-		stop = clock();
-		time2 = (double)(stop - start) / CLOCKS_PER_SEC;
-		std::cout << "\nThe Way in heuristic = " << sumHeuristic;
-		std::cout << "\n" << "the running time of the heuristic algorithm = " << time2;
-		percent(priceMin, priceMax, sumHeuristic);
-		for (int i = 0; i < sumCities; i++)
-			delete[] matrix[i];
-		delete[] matrix;
-		delete[] masHeuristic;
-		puts("\n--------------------------------------------------");
-	//}
+	int StartCity, cnt_city;
+	cout << "Введите кол-во городов:"<<endl;
+	cin >> cnt_city;
+	cout << "Введите начальный город:"<<endl;
+	cin >> StartCity;
+	int** matr; int** matкCopy;
+	int* mas; int* masHeuristic; int* masMax; int* masMin;
+	int price = 0, priceMax = 0, sumHeuristic = 0, priceMin = 0;
+	clock_t start, stop;
+	double time1, time2;
+	matr = new int* [cnt_city];
+	for (int i = 0; i < cnt_city; i++)
+		matr[i] = new int[cnt_city];
+	mas = new int[cnt_city + 1];
+	masMax = new int[cnt_city + 1];
+	masMin = new int[cnt_city + 1];
+	RandMatr(matr, cnt_city);
+	OutputMatr(matr, cnt_city);
+	CityWay(mas,cnt_city, StartCity);
+	start = clock();
+	Max_and_MinCost(matr, cnt_city, mas, masMax, masMin, priceMin, priceMax);
+	cout <<endl<< "Стоимость min пути = " << priceMin << endl << "Минимальный путь: ";
+	for (int i = 0; i <= cnt_city; i++)
+		cout << masMin[i] << " ";
+	cout << endl << "Стоимость max пути = " << priceMax << endl << "Максимальный путь: ";
+	for (int i = 0; i <= cnt_city; i++)
+		cout << masMax[i] << " ";
+	stop = clock();
+	puts("");
+	masHeuristic = new int[cnt_city + 1];
+	time1 = (double)(stop - start) / CLOCKS_PER_SEC;
+	cout << endl<<"Время выполнения точного алгоритма = " << time1<<endl;
+	start = clock();
+	Heuristic(matr, cnt_city, StartCity, masHeuristic, sumHeuristic);
+	cout << "Путь в эвристике: ";
+	for (int i = 0; i <= cnt_city; i++)
+		cout << masHeuristic[i] << " ";
+	stop = clock();
+	time2 = (double)(stop - start) / CLOCKS_PER_SEC;
+	puts("");
+	cout << endl<<"Стоимость пути в эвристике = " << sumHeuristic<<endl;
+	cout << "Время выполнения эвристики = " << time2<<endl;
+	Percent(priceMin, priceMax, sumHeuristic);
+
+	delete[] mas;
+	delete[] masMax;
+	delete[] masMin;
+	for (int i = 0; i < cnt_city; i++)
+		delete[] matr[i];
+	delete[] matr;
+	delete[] masHeuristic;
 	return 0;
 }
